@@ -5916,6 +5916,11 @@ WHERE cg.extends IN ('" . implode("','", $extends) . "') AND
         'rightTable' => 'civicrm_note',
         'callback' => 'joinNoteFromParticipant',
       ),
+      'financialAcc_from_lineItem' => array(
+        'leftTable' => 'civicrm_line_item',
+        'rightTable' => 'civicrm_financial_account',
+        'callback' => 'joinFinancialAccFromLineItem',
+      ),
     );
   }
 
@@ -6012,6 +6017,20 @@ WHERE cg.extends IN ('" . implode("','", $extends) . "') AND
    ON {$this->_aliases[$prefix . 'civicrm_email']}.contact_id = {$this->_aliases[$prefix . 'civicrm_contact']}.id
    AND {$this->_aliases[$prefix . 'civicrm_email']}.is_primary = 1
 ";
+  }
+
+  /**
+   * Add join from lineitem table to financia account.
+   *
+   * Prefix will be added to both tables as it's assumed you are using it to get address of a secondary contact.
+   *
+   * @param string $prefix
+   */
+  protected function joinFinancialAccFromLineItem($prefix = '') {
+    $this->_from .= " LEFT JOIN civicrm_entity_financial_account cefa
+      ON cefa.entity_id = {$this->_aliases[$prefix . 'civicrm_line_item']}.financial_type_id AND cefa.entity_table = 'civicrm_financial_type'
+      LEFT JOIN  civicrm_financial_account {$this->_aliases[$prefix . 'civicrm_financial_account']}
+      ON cefa.financial_account_id = {$this->_aliases[$prefix . 'civicrm_financial_account']}.id";
   }
 
    protected function joinCampaignFromPledge($prefix = '') {
